@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
-	"io/ioutil"
 
 	//"github.com/weppos/pslint"
 )
@@ -28,7 +28,7 @@ func main() {
 	switch flag.NArg() {
 	case 0:
 		fi, _ := os.Stdin.Stat()
-		if fi.Mode() & os.ModeNamedPipe == 0 {
+		if fi.Mode()&os.ModeNamedPipe == 0 {
 			flag.Usage()
 			os.Exit(2)
 		} else {
