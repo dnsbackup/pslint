@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"io/ioutil"
 
-	"github.com/weppos/pslint"
+	//"github.com/weppos/pslint"
 )
 
 func usage() {
@@ -26,7 +27,14 @@ func init() {
 func main() {
 	switch flag.NArg() {
 	case 0:
-		fmt.Println(pslint.Hello())
+		fi, _ := os.Stdin.Stat()
+		if fi.Mode() & os.ModeNamedPipe == 0 {
+			flag.Usage()
+			os.Exit(2)
+		} else {
+			bytes, _ := ioutil.ReadAll(os.Stdin)
+			fmt.Print(string(bytes))
+		}
 	default:
 		flag.Usage()
 		os.Exit(2)
