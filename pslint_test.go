@@ -40,8 +40,9 @@ func TestLinter_CheckSpaces_LeadingCases(t *testing.T) {
 	inputs = []string{
 		"",
 		"// a comment",
-		".bad.suffix",
 		"suffix",
+
+		".bad.suffix",
 	}
 	for _, input := range inputs {
 		line := &line{source: input, number: 2}
@@ -105,8 +106,9 @@ func TestLinter_CheckSpaces_TrailingCases(t *testing.T) {
 	inputs = []string{
 		"",
 		"// a comment",
-		".bad.suffix",
 		"suffix",
+
+		".bad.suffix",
 	}
 	for _, input := range inputs {
 		line := &line{source: input, number: 2}
@@ -171,9 +173,9 @@ func TestLinter_CheckRuleLowercase_Cases(t *testing.T) {
 		"",
 		"foo",
 		"// a comment",
-		".bad.suffix",
 
-		"// A comment", // ignores comments even if mixed case
+		".bad.suffix",
+		"// A comment", // ignore comments even if mixed case
 	}
 	for _, input := range inputs {
 		line := &line{source: input, number: 2}
@@ -199,6 +201,82 @@ func TestLinter_CheckRuleLowercase_Cases(t *testing.T) {
 		}
 		if problem == nil {
 			t.Errorf("checkRuleLowercase('%v') should NOT pass", input)
+		}
+	}
+}
+
+func TestLinter_CheckRuleEmptyLabels(t *testing.T) {
+	linter := &Linter{}
+	input := "foo..bar"
+	expectedLine := 2
+	line := &line{source: input, number: expectedLine}
+
+	problem, _ := linter.checkRuleEmptyLabels(line)
+	if problem == nil {
+		t.Fatalf("checkRuleEmptyLabels('%v') should NOT pass", input)
+	}
+
+	if problemLine := problem.Line; problemLine != expectedLine {
+		t.Fatalf("checkRuleEmptyLabels problem line is %v, want %v", problemLine, expectedLine)
+	}
+
+	if problemSource := problem.LineSource; problemSource != input {
+		t.Fatalf("checkRuleEmptyLabels problem source is %v, want %v", problemSource, input)
+	}
+
+	expectedMessage := "empty label"
+	if problemMessage := problem.Message; problemMessage != expectedMessage {
+		t.Fatalf("checkRuleEmptyLabels problem message is %v, want %v", problemMessage, expectedMessage)
+	}
+
+	if problemLevel := problem.Level; problemLevel != LEVEL_ERROR {
+		t.Fatalf("checkRuleEmptyLabels problem level is %v, want %v", problemLevel, LEVEL_ERROR)
+	}
+}
+
+func TestLinter_CheckRuleEmptyLabel_Cases(t *testing.T) {
+	linter := &Linter{}
+	var inputs []string
+
+	inputs = []string{
+		"",
+		"foo",
+		"foo.bar",
+		"foo.bar.baz",
+		"// .. this is a comment",
+
+		".bad.suffix", // ignore bad leading dots
+		"bad.suffix.", // ignore bad trailing dots
+		"foo. .bar",   // consider spaces as non-empty
+	}
+	for _, input := range inputs {
+		line := &line{source: input, number: 2}
+		problem, err := linter.checkRuleEmptyLabels(line)
+		if err != nil {
+			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
+		}
+		if problem != nil {
+			t.Errorf("checkRuleEmptyLabels('%v') should pass", input)
+		}
+	}
+
+	inputs = []string{
+		"foo..bar",
+		"foo.bar..",
+		"..foo.bar",
+		"foo...bar",
+		"foo.. .bar",
+		"foo.bar..baz",
+		"foo..bar.baz",
+	}
+	for _, input := range inputs {
+		line := &line{source: input, number: 2}
+		problem, err := linter.checkRuleEmptyLabels(line)
+		if err != nil {
+			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
+		}
+		if problem == nil {
+			t.Errorf("checkRuleEmptyLabels('%v') should NOT pass", input)
 		}
 	}
 }

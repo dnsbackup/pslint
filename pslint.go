@@ -32,7 +32,6 @@ const (
 //
 // - The line should not have a leading space
 // - The line should not have a trailing space
-//
 func (l *Linter) checkSpaces(line *line) (*Problem, error) {
 	if match := regexp.MustCompile(`^\s`).MatchString(line.source); match {
 		problem := &Problem{
@@ -69,6 +68,30 @@ func (l *Linter) checkRuleLowercase(line *line) (*Problem, error) {
 			Line:       line.number,
 			LineSource: line.source,
 			Message:    "non-lowercase suffix",
+			Level:      LEVEL_ERROR,
+		}
+		return problem, nil
+	}
+
+	return nil, nil
+}
+
+// EmptyLabels: checks the Rule contains empty labels.
+//
+// An empty label is caused by two `..` (dots) with no content.
+// The token `. .` will not be detected by this check, as there is already a more general check
+// that checks the presence of spaces in a Rule.
+func (l *Linter) checkRuleEmptyLabels(line *line) (*Problem, error) {
+	if !line.isRule() {
+		return nil, nil
+	}
+
+	match := regexp.MustCompile(`\.{2,}`).MatchString(line.source)
+	if match {
+		problem := &Problem{
+			Line:       line.number,
+			LineSource: line.source,
+			Message:    "empty label",
 			Level:      LEVEL_ERROR,
 		}
 		return problem, nil
