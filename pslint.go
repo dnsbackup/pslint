@@ -1,4 +1,4 @@
-// Package pslint is a linter for Public Suffix list
+// Package pslint is a linter for Public Suffix list.
 package pslint
 
 import (
@@ -28,6 +28,7 @@ const (
 //
 //}
 
+// Lowercase: checks the Rule is entirely lower-case.
 func (l *Linter) checkRuleLowercase(line *line) (*Problem, error) {
 	if !line.isRule() {
 		return nil, nil

@@ -33,9 +33,11 @@ func TestLinterCheckRuleLowercase(t *testing.T) {
 	}
 }
 
-func TestLinterCheckRuleLowercaseValid(t *testing.T) {
+func TestLinterCheckRuleLowercaseCases(t *testing.T) {
 	linter := &Linter{}
-	inputs := []string{
+	var inputs []string
+
+	inputs = []string{
 		"",
 		"foo",
 		"// a comment",
@@ -43,7 +45,6 @@ func TestLinterCheckRuleLowercaseValid(t *testing.T) {
 
 		"// A comment", // ignores comments even if mixed case
 	}
-
 	for _, input := range inputs {
 		line := &line{source: input, number: 2}
 		problem, err := linter.checkRuleLowercase(line)
@@ -54,16 +55,12 @@ func TestLinterCheckRuleLowercaseValid(t *testing.T) {
 			t.Errorf("checkRuleLowercase('%v') should pass", input)
 		}
 	}
-}
 
-func TestLinterCheckRuleLowercaseInValid(t *testing.T) {
-	linter := &Linter{}
 	inputs := []string{
 		"mixedCase",
 		"mixed.Case",
 		"mixed.caSe",
 	}
-
 	for _, input := range inputs {
 		line := &line{source: input, number: 2}
 		problem, err := linter.checkRuleLowercase(line)
