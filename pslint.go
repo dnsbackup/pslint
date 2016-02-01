@@ -28,17 +28,42 @@ const (
 //
 //}
 
+// Spaces: checks the Line does not have irrelevant spaces.
+//
+// - The line should not have a leading space
+// - The line should not have a trailing space
+//
+func (l *Linter) checkSpaces(line *line) (*Problem, error) {
+	if match := regexp.MustCompile(`^\s`).MatchString(line.source); match {
+		problem := &Problem{
+			Line:       line.number,
+			LineSource: line.source,
+			Message:    "leading space",
+			Level:      LEVEL_WARN,
+		}
+		return problem, nil
+	}
+
+	if match := regexp.MustCompile(`\s$`).MatchString(line.source); match {
+		problem := &Problem{
+			Line:       line.number,
+			LineSource: line.source,
+			Message:    "trailing space",
+			Level:      LEVEL_WARN,
+		}
+		return problem, nil
+	}
+
+	return nil, nil
+}
+
 // Lowercase: checks the Rule is entirely lower-case.
 func (l *Linter) checkRuleLowercase(line *line) (*Problem, error) {
 	if !line.isRule() {
 		return nil, nil
 	}
 
-	match, err := regexp.MatchString("[A-Z]", line.source)
-	if err != nil {
-		return nil, err
-	}
-
+	match := regexp.MustCompile(`[A-Z]`).MatchString(line.source)
 	if match {
 		problem := &Problem{
 			Line:       line.number,
