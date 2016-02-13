@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 
-	//"github.com/weppos/pslint"
 	"github.com/weppos/pslint"
 )
 
@@ -63,6 +63,45 @@ func lintPipe(linter *pslint.Linter) {
 }
 
 func printLint(problems []pslint.Problem, err error) {
-	fmt.Println(problems)
-	fmt.Println(err)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		os.Exit(2)
+	}
+
+	if len(problems) == 0 {
+		return
+	}
+
+	maxs := []int{0, 0, 0, 0}
+	rows := [][]string{}
+	for _, problem := range problems {
+		row := []string{fmt.Sprintf("%v", problem.Line), problem.Message, fmt.Sprintf("%v", problem.Level), problem.LineSource}
+		rows = append(rows, row)
+
+		for i := 0; i < 4; i += 1 {
+			if n := len(row[i]); n > maxs[i] {
+				maxs[i] = n
+			}
+		}
+	}
+
+	fmt.Printf("Found %d problems:\n", len(problems))
+
+	for _, row := range rows {
+		fmt.Printf("%v: %v | %v (%v)\n",
+			rightPad(row[0], maxs[0]),
+			rightPad(row[3], maxs[3]),
+			rightPad(row[1], maxs[1]),
+			row[2])
+	}
+
+	os.Exit(1)
+}
+
+func leftPad(s string, length int) string {
+	return strings.Repeat(" ", length-len(s)) + s
+}
+
+func rightPad(s string, length int) string {
+	return s + strings.Repeat(" ", length-len(s))
 }
