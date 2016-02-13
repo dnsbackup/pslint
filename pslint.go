@@ -9,8 +9,29 @@ import (
 	"strings"
 )
 
+const (
+	LEVEL_WARN  = Level("warning")
+	LEVEL_ERROR = Level("error")
+)
+
+// Level represents a problem level.
+type Level string
+
 // A Linter lints a Public Suffix list source.
 type Linter struct {
+	// When FailFast is true, the linter will stop running the tests for the entire list
+	// on the first failed test.
+	FailFast bool
+
+	// When FailFirst is true, the linter will stop running the tests for the current line
+	// on the first failed test.
+	FailFirst bool
+}
+
+// NewLinter creates a new Linter with the recommended settings.
+func NewLinter() *Linter {
+	l := &Linter{FailFast: false, FailFirst: true}
+	return l
 }
 
 // Problem represents a problem in a Public Suffix list source.
@@ -19,13 +40,6 @@ type Problem struct {
 	Message string // a short explanation of the problem
 	Level   Level  // a short string that represents the level (info, warning, error)
 }
-
-type Level string
-
-const (
-	LEVEL_WARN  = Level("warning")
-	LEVEL_ERROR = Level("error")
-)
 
 func (l *Linter) newProblem(line *Line, message string, level Level) *Problem {
 	problem := &Problem{
@@ -36,12 +50,14 @@ func (l *Linter) newProblem(line *Line, message string, level Level) *Problem {
 	return problem
 }
 
-func (l *Linter) lintString(src string) ([]Problem, error) {
+// LintString lints the content of the string passed as argument one line at time.
+func (l *Linter) LintString(src string) ([]Problem, error) {
 	file := strings.NewReader(src)
 	return l.lint(file)
 }
 
-func (l *Linter) lintFile(path string) ([]Problem, error) {
+// LintString reads the content from the file and lints one line at time.
+func (l *Linter) LintFile(path string) ([]Problem, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -57,28 +73,42 @@ func (l *Linter) lint(r io.Reader) ([]Problem, error) {
 
 	var line *Line
 	var problems []Problem
-	index := 0
 
+	index := 0
+	checks := l.ListChecks()
+
+FileLoop:
 	for scanner.Scan() {
 		index = index + 1
 		line = &Line{number: index, source: scanner.Text()}
 
-		if p, _ := l.checkSpaces(line); p != nil {
-			problems = append(problems, *p)
-		}
-		if p, _ := l.checkRuleLowercase(line); p != nil {
-			problems = append(problems, *p)
-		}
-		if p, _ := l.checkRuleEmptyLabels(line); p != nil {
-			problems = append(problems, *p)
+	LineLoop:
+		for _, check := range checks {
+			if p, _ := check(line); p != nil {
+				problems = append(problems, *p)
+				if l.FailFast {
+					break FileLoop
+				}
+				if l.FailFirst {
+					break LineLoop
+				}
+			}
 		}
 	}
 	return problems, nil
 }
 
-//func (l *Linter) Lint(lines []string) {
-//
-//}
+// CheckFunc represents a single check
+type CheckFunc func(line *Line) (*Problem, error)
+
+// ListCheck creates and returns a list of checks to be run.
+func (l *Linter) ListChecks() []CheckFunc {
+	return []CheckFunc{
+		l.checkSpaces,
+		l.checkRuleLowercase,
+		l.checkRuleEmptyLabels,
+	}
+}
 
 // Spaces: checks the Line does not have irrelevant spaces.
 //
