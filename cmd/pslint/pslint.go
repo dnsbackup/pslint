@@ -94,7 +94,7 @@ func printLint(problems []pslint.Problem, err error) {
 
 	for _, row := range rows {
 		fmt.Printf("%v: %v | %v (%v)\n",
-			rightPad(row[0], maxs[0]),
+			leftPad(row[0], maxs[0]),
 			rightPad(row[3], maxs[3]),
 			rightPad(row[1], maxs[1]),
 			row[2])

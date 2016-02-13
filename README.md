@@ -35,7 +35,7 @@ Found 0 problems!
 ```
 $ ./pslint --file lists/errors.txt
 Found 5 problems:
-40 :  airline.aero | leading space        (warning)
+ 40:  airline.aero | leading space        (warning)
 183: aRpa          | non-lowercase suffix (error)
 243:  sa.gov.au    | leading space        (warning)
 327: q.BG          | non-lowercase suffix (error)
