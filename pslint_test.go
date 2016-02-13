@@ -1,266 +1,148 @@
 package pslint
 
 import (
+	"reflect"
 	"testing"
 )
 
-func TestLinter_CheckSpaces_Leading(t *testing.T) {
+func TestValid(t *testing.T) {
+	var src string
 	linter := &Linter{}
-	input := " rule"
-	expectedLine := 2
-	line := &Line{source: input, number: expectedLine}
 
-	problem, _ := linter.checkSpaces(line)
-	if problem == nil {
-		t.Fatalf("checkSpaces('%v') should NOT pass", input)
+	src = `
+// aw : http://en.wikipedia.org/wiki/.aw
+aw
+com.aw
+
+// bd : http://en.wikipedia.org/wiki/.bd
+*.bd
+
+// ck : http://en.wikipedia.org/wiki/.ck
+*.ck
+!www.ck
+`
+
+	ps, err := linter.LintString(src)
+	if err != nil {
+		t.Fatalf("lint() returned an error: %v", err)
 	}
 
-	if problemLine := problem.Line; problemLine != line {
-		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, line)
-	}
-
-	expectedMessage := "leading space"
-	if problemMessage := problem.Message; problemMessage != expectedMessage {
-		t.Fatalf("checkSpaces problem message is %v, want %v", problemMessage, expectedMessage)
-	}
-
-	if problemLevel := problem.Level; problemLevel != LEVEL_WARN {
-		t.Fatalf("checkSpaces problem level is %v, want %v", problemLevel, LEVEL_WARN)
+	if want, got := 0, len(ps); want != got {
+		t.Errorf("Expected %d errors, got %d", want, got)
+		t.Fatal(ps)
 	}
 }
 
-func TestLinter_CheckSpaces_LeadingCases(t *testing.T) {
-	linter := &Linter{}
-	var inputs []string
+func TestInvalid(t *testing.T) {
+	var src string
+	linter := NewLinter()
+	linter.FailFast = false
+	linter.FailFirst = false
 
-	inputs = []string{
-		"",
-		"// a comment",
-		"suffix",
+	src = `
+aw
+// invalid : leading space
+ com.aw
 
-		".bad.suffix",
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkSpaces(line)
-		if err != nil {
-			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
-		}
-		if problem != nil {
-			t.Errorf("checkSpaces('%v') should pass", input)
-		}
-	}
+// bd : http://en.wikipedia.org/wiki/.bd
+*.bd
 
-	inputs = []string{
-		" a leading space",
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkSpaces(line)
-		if err != nil {
-			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
-		}
-		if problem == nil {
-			t.Errorf("checkSpaces('%v') should NOT pass", input)
-		}
-	}
-}
+// ck : http://en.wikipedia.org/wiki/.ck
+ *.CK
+!www.ck
+`
 
-func TestLinter_CheckSpaces_Trailing(t *testing.T) {
-	linter := &Linter{}
-	input := "rule "
-	expectedLine := 2
-	line := &Line{source: input, number: expectedLine}
-
-	problem, _ := linter.checkSpaces(line)
-	if problem == nil {
-		t.Fatalf("checkSpaces('%v') should NOT pass", input)
+	ps, err := linter.LintString(src)
+	if err != nil {
+		t.Fatalf("lint() returned an error: %v", err)
 	}
 
-	if problemLine := problem.Line; problemLine != line {
-		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, line)
+	if want, got := 3, len(ps); want != got {
+		t.Errorf("Expected %d errors, got %d", want, got)
+		t.Fatal(ps)
 	}
 
-	expectedMessage := "trailing space"
-	if problemMessage := problem.Message; problemMessage != expectedMessage {
-		t.Fatalf("checkSpaces problem message is %v, want %v", problemMessage, expectedMessage)
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 
-	if problemLevel := problem.Level; problemLevel != LEVEL_WARN {
-		t.Fatalf("checkSpaces problem level is %v, want %v", problemLevel, LEVEL_WARN)
+	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
+	}
+
+	if want, got := &ps[2], &(Problem{Message: "non-lowercase suffix", Level: LEVEL_ERROR, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }
 
-func TestLinter_CheckSpaces_TrailingCases(t *testing.T) {
-	linter := &Linter{}
-	var inputs []string
+func TestInvalidFailFast(t *testing.T) {
+	var src string
+	linter := NewLinter()
+	linter.FailFast = true
+	linter.FailFirst = false
 
-	inputs = []string{
-		"",
-		"// a comment",
-		"suffix",
+	src = `
+aw
+// invalid : leading space
+ com.aw
 
-		".bad.suffix",
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkSpaces(line)
-		if err != nil {
-			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
-		}
-		if problem != nil {
-			t.Errorf("checkSpaces('%v') should pass", input)
-		}
+// bd : http://en.wikipedia.org/wiki/.bd
+*.bd
+
+// ck : http://en.wikipedia.org/wiki/.ck
+ *.CK
+!www.ck
+`
+
+	ps, err := linter.LintString(src)
+	if err != nil {
+		t.Fatalf("lint() returned an error: %v", err)
 	}
 
-	inputs = []string{
-		"a trailing space ",
+	if want, got := 1, len(ps); want != got {
+		t.Errorf("Expected %d errors, got %d", want, got)
+		t.Fatal(ps)
 	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkSpaces(line)
-		if err != nil {
-			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
-		}
-		if problem == nil {
-			t.Errorf("checkSpaces('%v') should NOT pass", input)
-		}
+
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }
 
-func TestLinter_CheckRuleLowercase(t *testing.T) {
-	linter := &Linter{}
-	input := "mixedCase"
-	expectedLine := 2
-	line := &Line{source: input, number: expectedLine}
+func TestInvalidFailFirst(t *testing.T) {
+	var src string
+	linter := NewLinter()
+	linter.FailFast = false
+	linter.FailFirst = true
 
-	problem, _ := linter.checkRuleLowercase(line)
-	if problem == nil {
-		t.Fatalf("checkRuleLowercase('%v') should NOT pass", input)
+	src = `
+aw
+// invalid : leading space
+ com.aw
+
+// bd : http://en.wikipedia.org/wiki/.bd
+*.bd
+
+// ck : http://en.wikipedia.org/wiki/.ck
+ *.CK
+!www.ck
+`
+
+	ps, err := linter.LintString(src)
+	if err != nil {
+		t.Fatalf("lint() returned an error: %v", err)
 	}
 
-	if problemLine := problem.Line; problemLine != line {
-		t.Fatalf("checkRuleLowercase problem line is %v, want %v", problemLine, line)
+	if want, got := 2, len(ps); want != got {
+		t.Errorf("Expected %d errors, got %d", want, got)
+		t.Fatal(ps)
 	}
 
-	expectedMessage := "non-lowercase suffix"
-	if problemMessage := problem.Message; problemMessage != expectedMessage {
-		t.Fatalf("checkRuleLowercase problem message is %v, want %v", problemMessage, expectedMessage)
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 
-	if problemLevel := problem.Level; problemLevel != LEVEL_ERROR {
-		t.Fatalf("checkRuleLowercase problem level is %v, want %v", problemLevel, LEVEL_ERROR)
-	}
-}
-
-func TestLinter_CheckRuleLowercase_Cases(t *testing.T) {
-	linter := &Linter{}
-	var inputs []string
-
-	inputs = []string{
-		"",
-		"foo",
-		"// a comment",
-
-		".bad.suffix",
-		"// A comment", // ignore comments even if mixed case
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkRuleLowercase(line)
-		if err != nil {
-			t.Errorf("checkRuleLowercase('%v') returned error: %v", input, err)
-		}
-		if problem != nil {
-			t.Errorf("checkRuleLowercase('%v') should pass", input)
-		}
-	}
-
-	inputs = []string{
-		"mixedCase",
-		"mixed.Case",
-		"mixed.caSe",
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkRuleLowercase(line)
-		if err != nil {
-			t.Errorf("checkRuleLowercase('%v') returned error: %v", input, err)
-		}
-		if problem == nil {
-			t.Errorf("checkRuleLowercase('%v') should NOT pass", input)
-		}
-	}
-}
-
-func TestLinter_CheckRuleEmptyLabels(t *testing.T) {
-	linter := &Linter{}
-	input := "foo..bar"
-	expectedLine := 2
-	line := &Line{source: input, number: expectedLine}
-
-	problem, _ := linter.checkRuleEmptyLabels(line)
-	if problem == nil {
-		t.Fatalf("checkRuleEmptyLabels('%v') should NOT pass", input)
-	}
-
-	if problemLine := problem.Line; problemLine != line {
-		t.Fatalf("checkRuleEmptyLabels problem line is %v, want %v", problemLine, line)
-	}
-
-	expectedMessage := "empty label"
-	if problemMessage := problem.Message; problemMessage != expectedMessage {
-		t.Fatalf("checkRuleEmptyLabels problem message is %v, want %v", problemMessage, expectedMessage)
-	}
-
-	if problemLevel := problem.Level; problemLevel != LEVEL_ERROR {
-		t.Fatalf("checkRuleEmptyLabels problem level is %v, want %v", problemLevel, LEVEL_ERROR)
-	}
-}
-
-func TestLinter_CheckRuleEmptyLabel_Cases(t *testing.T) {
-	linter := &Linter{}
-	var inputs []string
-
-	inputs = []string{
-		"",
-		"foo",
-		"foo.bar",
-		"foo.bar.baz",
-		"// .. this is a comment",
-
-		".bad.suffix", // ignore bad leading dots
-		"bad.suffix.", // ignore bad trailing dots
-		"foo. .bar",   // consider spaces as non-empty
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkRuleEmptyLabels(line)
-		if err != nil {
-			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
-		}
-		if problem != nil {
-			t.Errorf("checkRuleEmptyLabels('%v') should pass", input)
-		}
-	}
-
-	inputs = []string{
-		"foo..bar",
-		"foo.bar..",
-		"..foo.bar",
-		"foo...bar",
-		"foo.. .bar",
-		"foo.bar..baz",
-		"foo..bar.baz",
-	}
-	for _, input := range inputs {
-		line := &Line{source: input, number: 2}
-		problem, err := linter.checkRuleEmptyLabels(line)
-		if err != nil {
-			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
-		}
-		if problem == nil {
-			t.Errorf("checkRuleEmptyLabels('%v') should NOT pass", input)
-		}
+	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }
