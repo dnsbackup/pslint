@@ -3,6 +3,18 @@
 PSLint is a linter for [Public Suffix list](https://publicsuffix.org/).
 
 
+## Compile
+
+You need Go to compile the binary.
+
+```
+$ cd /path/to/repo
+$ go build
+```
+
+You can also [cross-compile for several platforms](http://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5).
+
+
 ## Usage
 
 ```shell
