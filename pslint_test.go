@@ -62,15 +62,15 @@ aw
 		t.Fatal(ps)
 	}
 
-	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: 4, LineSource: " com.aw"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 
-	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: 10, LineSource: " *.CK"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 
-	if want, got := &ps[2], &(Problem{Message: "non-lowercase suffix", Level: LEVEL_ERROR, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[2], &(Problem{Message: "non-lowercase suffix", Level: LEVEL_ERROR, Line: 10, LineSource: " *.CK"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }
@@ -104,7 +104,7 @@ aw
 		t.Fatal(ps)
 	}
 
-	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: 4, LineSource: " com.aw"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }
@@ -138,11 +138,11 @@ aw
 		t.Fatal(ps)
 	}
 
-	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 4, source: " com.aw"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[0], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: 4, LineSource: " com.aw"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 
-	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: &Line{number: 10, source: " *.CK"}}); !reflect.DeepEqual(want, got) {
+	if want, got := &ps[1], &(Problem{Message: "leading space", Level: LEVEL_WARN, Line: 10, LineSource: " *.CK"}); !reflect.DeepEqual(want, got) {
 		t.Fatalf("Problem[%d] is %+v, want %+v", 0, got, want)
 	}
 }

@@ -35,16 +35,18 @@ func NewLinter() *Linter {
 
 // Problem represents a problem in a Public Suffix list source.
 type Problem struct {
-	Line    *Line  // line in the source file
-	Message string // a short explanation of the problem
-	Level   Level  // a short string that represents the level (info, warning, error)
+	Line       int    // line in the source file
+	LineSource string // the source line
+	Message    string // a short explanation of the problem
+	Level      Level  // a short string that represents the level (info, warning, error)
 }
 
-func (l *Linter) newProblem(line *Line, message string, level Level) *Problem {
+func (l *Linter) newProblem(line *line, message string, level Level) *Problem {
 	problem := &Problem{
-		Line:    line,
-		Message: message,
-		Level:   level,
+		Line:       line.number,
+		LineSource: line.source,
+		Message:    message,
+		Level:      level,
 	}
 	return problem
 }
@@ -70,7 +72,7 @@ func (l *Linter) lint(r io.Reader) ([]Problem, error) {
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
 
-	var line *Line
+	var sline *line
 	var problems []Problem
 
 	index := 0
@@ -79,11 +81,11 @@ func (l *Linter) lint(r io.Reader) ([]Problem, error) {
 FileLoop:
 	for scanner.Scan() {
 		index = index + 1
-		line = &Line{number: index, source: scanner.Text()}
+		sline = &line{number: index, source: scanner.Text()}
 
 	LineLoop:
 		for _, check := range checks {
-			if p, _ := check(line); p != nil {
+			if p, _ := check(sline); p != nil {
 				problems = append(problems, *p)
 				if l.FailFast {
 					break FileLoop
@@ -98,4 +100,4 @@ FileLoop:
 }
 
 // CheckFunc represents a single check
-type CheckFunc func(line *Line) (*Problem, error)
+type CheckFunc func(line *line) (*Problem, error)

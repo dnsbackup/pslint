@@ -47,7 +47,6 @@ func main() {
 	}
 }
 
-
 func lintFile(linter *pslint.Linter, path string) {
 	printLint(linter.LintFile(path))
 }

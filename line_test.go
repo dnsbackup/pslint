@@ -18,7 +18,7 @@ func TestLineIsEmpty(t *testing.T) {
 	}
 
 	for input, expected := range cases {
-		line := &Line{source: input}
+		line := &line{source: input}
 		if actual := line.isEmpty(); actual != expected {
 			t.Errorf("Expected isEmpty('%v') => %v, got %v", input, expected, actual)
 		}
@@ -39,7 +39,7 @@ func TestLineIsBlank(t *testing.T) {
 	}
 
 	for input, expected := range cases {
-		line := &Line{source: input}
+		line := &line{source: input}
 		if actual := line.isBlank(); actual != expected {
 			t.Errorf("Expected isBlank('%v') => %v, got %v", input, expected, actual)
 		}
@@ -60,7 +60,7 @@ func TestLineIsComment(t *testing.T) {
 	}
 
 	for input, expected := range cases {
-		line := &Line{source: input}
+		line := &line{source: input}
 		if actual := line.isComment(); actual != expected {
 			t.Errorf("Expected isComment('%v') => %v, got %v", input, expected, actual)
 		}
@@ -81,7 +81,7 @@ func TestLineIsRule(t *testing.T) {
 	}
 
 	for input, expected := range cases {
-		line := &Line{source: input}
+		line := &line{source: input}
 		if actual := line.isRule(); actual != expected {
 			t.Errorf("Expected isRule('%v') => %v, got %v", input, expected, actual)
 		}

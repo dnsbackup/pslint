@@ -17,7 +17,7 @@ func (l *Linter) ListChecks() []CheckFunc {
 //
 // - The line should not have a leading space
 // - The line should not have a trailing space
-func (l *Linter) checkSpaces(line *Line) (*Problem, error) {
+func (l *Linter) checkSpaces(line *line) (*Problem, error) {
 	if match := regexp.MustCompile(`^\s`).MatchString(line.source); match {
 		problem := l.newProblem(line, "leading space", LEVEL_WARN)
 		return problem, nil
@@ -32,7 +32,7 @@ func (l *Linter) checkSpaces(line *Line) (*Problem, error) {
 }
 
 // Lowercase: checks the Rule is entirely lower-case.
-func (l *Linter) checkRuleLowercase(line *Line) (*Problem, error) {
+func (l *Linter) checkRuleLowercase(line *line) (*Problem, error) {
 	if !line.isRule() {
 		return nil, nil
 	}
@@ -51,7 +51,7 @@ func (l *Linter) checkRuleLowercase(line *Line) (*Problem, error) {
 // An empty label is caused by two `..` (dots) with no content.
 // The token `. .` will not be detected by this check, as there is already a more general check
 // that checks the presence of spaces in a Rule.
-func (l *Linter) checkRuleEmptyLabels(line *Line) (*Problem, error) {
+func (l *Linter) checkRuleEmptyLabels(line *line) (*Problem, error) {
 	if !line.isRule() {
 		return nil, nil
 	}
