@@ -8,19 +8,15 @@ func TestLinter_CheckSpaces_Leading(t *testing.T) {
 	linter := &Linter{}
 	input := " rule"
 	expectedLine := 2
-	line := &line{source: input, number: expectedLine}
+	line := &Line{source: input, number: expectedLine}
 
 	problem, _ := linter.checkSpaces(line)
 	if problem == nil {
 		t.Fatalf("checkSpaces('%v') should NOT pass", input)
 	}
 
-	if problemLine := problem.Line; problemLine != expectedLine {
-		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, expectedLine)
-	}
-
-	if problemSource := problem.LineSource; problemSource != input {
-		t.Fatalf("checkSpaces problem source is %v, want %v", problemSource, input)
+	if problemLine := problem.Line; problemLine != line {
+		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, line)
 	}
 
 	expectedMessage := "leading space"
@@ -45,7 +41,7 @@ func TestLinter_CheckSpaces_LeadingCases(t *testing.T) {
 		".bad.suffix",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkSpaces(line)
 		if err != nil {
 			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
@@ -59,7 +55,7 @@ func TestLinter_CheckSpaces_LeadingCases(t *testing.T) {
 		" a leading space",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkSpaces(line)
 		if err != nil {
 			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
@@ -74,19 +70,15 @@ func TestLinter_CheckSpaces_Trailing(t *testing.T) {
 	linter := &Linter{}
 	input := "rule "
 	expectedLine := 2
-	line := &line{source: input, number: expectedLine}
+	line := &Line{source: input, number: expectedLine}
 
 	problem, _ := linter.checkSpaces(line)
 	if problem == nil {
 		t.Fatalf("checkSpaces('%v') should NOT pass", input)
 	}
 
-	if problemLine := problem.Line; problemLine != expectedLine {
-		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, expectedLine)
-	}
-
-	if problemSource := problem.LineSource; problemSource != input {
-		t.Fatalf("checkSpaces problem source is %v, want %v", problemSource, input)
+	if problemLine := problem.Line; problemLine != line {
+		t.Fatalf("checkSpaces problem line is %v, want %v", problemLine, line)
 	}
 
 	expectedMessage := "trailing space"
@@ -111,7 +103,7 @@ func TestLinter_CheckSpaces_TrailingCases(t *testing.T) {
 		".bad.suffix",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkSpaces(line)
 		if err != nil {
 			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
@@ -125,7 +117,7 @@ func TestLinter_CheckSpaces_TrailingCases(t *testing.T) {
 		"a trailing space ",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkSpaces(line)
 		if err != nil {
 			t.Errorf("checkSpaces('%v') returned error: %v", input, err)
@@ -140,19 +132,15 @@ func TestLinter_CheckRuleLowercase(t *testing.T) {
 	linter := &Linter{}
 	input := "mixedCase"
 	expectedLine := 2
-	line := &line{source: input, number: expectedLine}
+	line := &Line{source: input, number: expectedLine}
 
 	problem, _ := linter.checkRuleLowercase(line)
 	if problem == nil {
 		t.Fatalf("checkRuleLowercase('%v') should NOT pass", input)
 	}
 
-	if problemLine := problem.Line; problemLine != expectedLine {
-		t.Fatalf("checkRuleLowercase problem line is %v, want %v", problemLine, expectedLine)
-	}
-
-	if problemSource := problem.LineSource; problemSource != input {
-		t.Fatalf("checkRuleLowercase problem source is %v, want %v", problemSource, input)
+	if problemLine := problem.Line; problemLine != line {
+		t.Fatalf("checkRuleLowercase problem line is %v, want %v", problemLine, line)
 	}
 
 	expectedMessage := "non-lowercase suffix"
@@ -178,7 +166,7 @@ func TestLinter_CheckRuleLowercase_Cases(t *testing.T) {
 		"// A comment", // ignore comments even if mixed case
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkRuleLowercase(line)
 		if err != nil {
 			t.Errorf("checkRuleLowercase('%v') returned error: %v", input, err)
@@ -194,7 +182,7 @@ func TestLinter_CheckRuleLowercase_Cases(t *testing.T) {
 		"mixed.caSe",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkRuleLowercase(line)
 		if err != nil {
 			t.Errorf("checkRuleLowercase('%v') returned error: %v", input, err)
@@ -209,19 +197,15 @@ func TestLinter_CheckRuleEmptyLabels(t *testing.T) {
 	linter := &Linter{}
 	input := "foo..bar"
 	expectedLine := 2
-	line := &line{source: input, number: expectedLine}
+	line := &Line{source: input, number: expectedLine}
 
 	problem, _ := linter.checkRuleEmptyLabels(line)
 	if problem == nil {
 		t.Fatalf("checkRuleEmptyLabels('%v') should NOT pass", input)
 	}
 
-	if problemLine := problem.Line; problemLine != expectedLine {
-		t.Fatalf("checkRuleEmptyLabels problem line is %v, want %v", problemLine, expectedLine)
-	}
-
-	if problemSource := problem.LineSource; problemSource != input {
-		t.Fatalf("checkRuleEmptyLabels problem source is %v, want %v", problemSource, input)
+	if problemLine := problem.Line; problemLine != line {
+		t.Fatalf("checkRuleEmptyLabels problem line is %v, want %v", problemLine, line)
 	}
 
 	expectedMessage := "empty label"
@@ -250,7 +234,7 @@ func TestLinter_CheckRuleEmptyLabel_Cases(t *testing.T) {
 		"foo. .bar",   // consider spaces as non-empty
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkRuleEmptyLabels(line)
 		if err != nil {
 			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
@@ -270,7 +254,7 @@ func TestLinter_CheckRuleEmptyLabel_Cases(t *testing.T) {
 		"foo..bar.baz",
 	}
 	for _, input := range inputs {
-		line := &line{source: input, number: 2}
+		line := &Line{source: input, number: 2}
 		problem, err := linter.checkRuleEmptyLabels(line)
 		if err != nil {
 			t.Errorf("checkRuleEmptyLabels('%v') returned error: %v", input, err)
