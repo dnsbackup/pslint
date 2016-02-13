@@ -12,7 +12,9 @@ import (
 )
 
 var (
-	flagFile *string
+	flagFile      *string
+	flagFailFirst *bool
+	flagFailFast  *bool
 )
 
 func usage() {
@@ -26,17 +28,19 @@ func usage() {
 
 func init() {
 	flagFile = flag.String("file", "", "Read the PSL from file")
+	flagFailFast = flag.Bool("fail-fast", false, "Stop checking on first error")
+	flagFailFirst = flag.Bool("fail-first", true, "Stop checking line on first error")
 
 	flag.Usage = usage
 	flag.Parse()
 }
 
 func main() {
-	linter := pslint.NewLinter()
+	linter := &pslint.Linter{FailFast: *flagFailFast, FailFirst: *flagFailFirst}
 
 	switch flag.NArg() {
 	case 0:
-		if flagFile != nil {
+		if *flagFile != "" {
 			lintFile(linter, *flagFile)
 		} else {
 			lintPipe(linter)
@@ -69,6 +73,7 @@ func printLint(problems []pslint.Problem, err error) {
 	}
 
 	if len(problems) == 0 {
+		fmt.Println("Found 0 problems!")
 		return
 	}
 
