@@ -20,10 +20,15 @@ Flags:
         Read the PSL from file
 ```
 
-**Example**
+**Examples**
 
 ```
 $ ./pslint --file lists/master
+Found 0 problems!
+```
+
+```
+$ cat lists/master | ./pslint
 Found 0 problems!
 ```
 
