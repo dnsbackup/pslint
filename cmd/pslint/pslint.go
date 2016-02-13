@@ -8,6 +8,11 @@ import (
 	"path"
 
 	//"github.com/weppos/pslint"
+	"github.com/weppos/pslint"
+)
+
+var (
+	flagFile *string
 )
 
 func usage() {
@@ -20,23 +25,45 @@ func usage() {
 }
 
 func init() {
+	flagFile = flag.String("file", "", "Read the PSL from file")
+
 	flag.Usage = usage
 	flag.Parse()
 }
 
 func main() {
+	linter := pslint.NewLinter()
+
 	switch flag.NArg() {
 	case 0:
-		fi, _ := os.Stdin.Stat()
-		if fi.Mode()&os.ModeNamedPipe == 0 {
-			flag.Usage()
-			os.Exit(2)
+		if flagFile != nil {
+			lintFile(linter, *flagFile)
 		} else {
-			bytes, _ := ioutil.ReadAll(os.Stdin)
-			fmt.Print(string(bytes))
+			lintPipe(linter)
 		}
 	default:
 		flag.Usage()
 		os.Exit(2)
 	}
+}
+
+
+func lintFile(linter *pslint.Linter, path string) {
+	printLint(linter.LintFile(path))
+}
+
+func lintPipe(linter *pslint.Linter) {
+	fi, _ := os.Stdin.Stat()
+	if fi.Mode()&os.ModeNamedPipe == 0 {
+		flag.Usage()
+		os.Exit(2)
+	} else {
+		bytes, _ := ioutil.ReadAll(os.Stdin)
+		printLint(linter.LintString(string(bytes)))
+	}
+}
+
+func printLint(problems []pslint.Problem, err error) {
+	fmt.Println(problems)
+	fmt.Println(err)
 }
