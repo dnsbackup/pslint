@@ -2,6 +2,8 @@
 
 PSLint is a linter for [Public Suffix list](https://publicsuffix.org/).
 
+[![Build Status](https://travis-ci.org/weppos/pslint.svg?branch=master)](https://travis-ci.org/weppos/pslint)
+
 
 ## Compile
 
