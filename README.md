@@ -35,12 +35,12 @@ Flags:
 **Examples**
 
 ```
-$ ./pslint --file lists/master
+$ ./pslint --file lists/master.txt
 Found 0 problems!
 ```
 
 ```
-$ cat lists/master | ./pslint
+$ cat lists/master.txt | ./pslint
 Found 0 problems!
 ```
 
