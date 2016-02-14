@@ -12,7 +12,7 @@ $ cd /path/to/repo
 $ go build
 ```
 
-You can also [cross-compile for several platforms](http://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5).
+You can also [cross-compile for several platforms](https://github.com/mitchellh/gox).
 
 
 ## Usage
