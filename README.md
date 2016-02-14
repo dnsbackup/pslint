@@ -4,6 +4,8 @@ PSLint is a linter for [Public Suffix list](https://publicsuffix.org/).
 
 [![Build Status](https://travis-ci.org/weppos/pslint.svg?branch=master)](https://travis-ci.org/weppos/pslint)
 
+PSLint is both a binary and a library. You can run the linter using the built-in `pslint` command or include the library as a dependency in your Go code to call the exported functions.
+
 
 ## Compile
 
